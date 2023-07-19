@@ -14,7 +14,7 @@ from coap_macros import COAP_CONTENT_FORMAT
 from umqttsimple import MQTTClient
 
 
-
+# ADJUST according to YOUR peripherals
 _MY_SSID = 'YOUR_SSID'
 _MY_PASS = 'YOUR_SSIDs_PASSWORD'
 _COAP_HOST = 'YOUR_HOST_MACHINE'
