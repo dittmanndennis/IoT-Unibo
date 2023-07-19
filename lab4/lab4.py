@@ -45,7 +45,7 @@ async def main():
             |> filter(fn: (r) => r._measurement == "tempValue")\
             |> filter(fn: (r) => r.user == "Dennis")\
             |> filter(fn: (r) => r._field == "value" )'
-    result = client.query_api().query(org=org, query=query)
+    result = query_api.query(org=org, query=query)
 
     results = []
     for table in result:
