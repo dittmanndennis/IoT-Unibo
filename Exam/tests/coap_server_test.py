@@ -1,10 +1,62 @@
 import datetime
 import logging
-
 import asyncio
 
-import aiocoap.resource as resource
+from constants import INFLUXDB, MQTT_BROKER
+
 import aiocoap
+import aiocoap.resource as resource
+import paho.mqtt.client as mqtt_client
+from influxdb_client import InfluxDBClient
+
+
+class DataResource(resource.Resource):
+    async def render_post(self, request):
+        payload = request.payload.decode()
+        alarm, weight, temp, hum, rssi = payload.split(", ")
+        print("Data POST payload: ", payload)
+
+        record = [
+                    {
+                        "measurement": "weight",
+                        "tags": {
+                            "alarm": alarm == "True"
+                            },
+                        "fields": {
+                            "value": float(weight)
+                        }
+                    },
+                    {
+                        "measurement": "temp",
+                        "fields": {
+                            "value": float(temp)
+                            }
+                    },
+                    {
+                        "measurement": "hum",
+                        "fields": {
+                            "value": float(hum)
+                            }
+                    },
+                    {
+                        "measurement": "rssi",
+                        "fields": {
+                            "value": float(rssi)
+                            }
+                    }
+                ]
+        write_api.write(INFLUXDB['TEST_BUCKET'], INFLUXDB['ORG'], record)
+
+        return aiocoap.Message(code=aiocoap.CHANGED, payload=b"True")
+    
+class ConfigResource(resource.Resource):
+    async def render_post(self, request):
+        print("Config POST payload: ", request.payload.decode())
+
+        #sampling_rate, calibration, alarm_level, alarm_counter
+        client.publish(MQTT_BROKER['TOPIC'], payload=request.payload)
+
+        return aiocoap.Message(code=aiocoap.CHANGED, payload=b"True")
 
 
 class BlockResource(resource.Resource):
@@ -101,9 +153,19 @@ class WhoAmI(resource.Resource):
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("coap-server").setLevel(logging.DEBUG)
 
+# mqtt setup
+
+client = mqtt_client.Client()
+client.connect(MQTT_BROKER['HOST'], MQTT_BROKER['TCP_PORT'], 60)
+
+# influxdb setup
+
+write_api = InfluxDBClient(url=INFLUXDB['URL'], token=INFLUXDB['TOKEN'], org=INFLUXDB['ORG']).write_api()
+
 async def main():
     # Resource tree creation
     root = resource.Site()
+    print(root)
 
     root.add_resource(['.well-known', 'core'],
             resource.WKCResource(root.get_resources_as_linkheader))
@@ -111,8 +173,10 @@ async def main():
     root.add_resource(['other', 'block'], BlockResource())
     root.add_resource(['other', 'separate'], SeparateLargeResource())
     root.add_resource(['whoami'], WhoAmI())
+    root.add_resource(['data'], DataResource())
+    root.add_resource(['config'], ConfigResource())
 
-    await aiocoap.Context.create_server_context(root)
+    await aiocoap.Context.create_server_context(bind=('127.0.0.1',5683), site=root)
 
     # Run forever
     await asyncio.get_running_loop().create_future()

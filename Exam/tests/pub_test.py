@@ -1,21 +1,16 @@
-import logging
 import asyncio
 import time
-import json
-
-#from aiocoap import *
-#from aiocoap.numbers.codes import GET
 
 import paho.mqtt.client as mqtt_client
 
+from constants import MQTT_BROKER
+
 client = mqtt_client.Client()
-
-#client.username_pw_set("iot2020", password="mqtt2020*")
-
-client.connect("broker.hivemq.com", 1883, 60)
+client.connect(MQTT_BROKER['HOST'], MQTT_BROKER['TCP_PORT'], 60)
 
 async def main():
-    client.publish("unibo/iot/dennis/test", payload=json.dumps({ 'sampling_rate': 60, 'calibration': 300, 'alarm_level': 200, 'alarm_counter': 10 }))
+    #sampling_rate, calibration, alarm_level, alarm_counter
+    client.publish(MQTT_BROKER['TOPIC'], payload=b"60, 300, 200, 10")
 
     print("published")
 
