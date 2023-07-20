@@ -1,5 +1,6 @@
 import logging
 import asyncio
+import datetime
 
 from constants import INFLUXDB, MQTT_BROKER, TELEGRAM_BOT
 
@@ -63,37 +64,20 @@ class DataResource(resource.Resource):
         alarm, weight, temp, hum, rssi = payload.split(", ")
         print("Data POST payload: ", payload)
 
-        record = [
-                    {
-                        "measurement": "weight",
-                        "tags": {
-                            "alarm": alarm == "True"
-                            },
-                        "fields": {
-                            "weight": float(weight)
-                        }
-                    },
-                    {
-                        "measurement": "temperature",
-                        "fields": {
-                            "temperature": float(temp)
-                            }
-                    },
-                    {
-                        "measurement": "humidity",
-                        "fields": {
-                            "humidity": float(hum)
-                            }
-                    },
-                    {
-                        "measurement": "rssi",
-                        "fields": {
-                            "rssi": float(rssi)
-                            }
+        record = {
+                    "measurement": "water_bowl",
+                    "tags": {
+                        "alarm": alarm == "True"
+                        },
+                    "fields": {
+                        "weight": float(weight),
+                        "temperature": float(temp),
+                        "humidity": float(hum),
+                        "rssi": float(rssi)
                     }
-                ]
+                }
         write_api = InfluxDBClient(url=INFLUXDB['URL'], token=INFLUXDB['TOKEN'], org=INFLUXDB['ORG']).write_api()
-        write_api.write(INFLUXDB['TEST_BUCKET'], INFLUXDB['ORG'], record)
+        write_api.write(INFLUXDB['BUCKET'], INFLUXDB['ORG'], record)
 
         if alarm == "True" and not _alarmed:
              _alarmed = True
