@@ -70,25 +70,25 @@ class DataResource(resource.Resource):
                             "alarm": alarm == "True"
                             },
                         "fields": {
-                            "value": float(weight)
+                            "weight": float(weight)
                         }
                     },
                     {
-                        "measurement": "temp",
+                        "measurement": "temperature",
                         "fields": {
-                            "value": float(temp)
+                            "temperature": float(temp)
                             }
                     },
                     {
-                        "measurement": "hum",
+                        "measurement": "humidity",
                         "fields": {
-                            "value": float(hum)
+                            "humidity": float(hum)
                             }
                     },
                     {
                         "measurement": "rssi",
                         "fields": {
-                            "value": float(rssi)
+                            "rssi": float(rssi)
                             }
                     }
                 ]
