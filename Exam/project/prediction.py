@@ -183,9 +183,9 @@ if __name__ == "__main__":
     #df_all = df_all.asfreq(pd.infer_freq(df_all.index))
 
     ### Get real data
-    #df_all = __get_data()
+    df_all = __get_data()
 
-    #print(df_all)
+    print(df_all)
 
     ### Write forecasted data to InfluxDB
     #__insert_forecast_on_all(df_all)
