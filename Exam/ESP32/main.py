@@ -35,7 +35,7 @@ weight_sensor.set_scale(value/1580)
 while True:
     try:
         mqtt_client.check_msg()
-        if (time() - _last_sample) > _sampling_rate:
+        if (time() - _last_sample) >= _sampling_rate:
             try:
                 weight_sensor.power_up()
                 weight = weight_sensor.get_units()
