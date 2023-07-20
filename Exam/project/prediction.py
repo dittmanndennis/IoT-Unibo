@@ -183,15 +183,16 @@ if __name__ == "__main__":
     #df_all = df_all.asfreq(pd.infer_freq(df_all.index))
 
     ### Get real data
-    df_all = __get_data()
-    print(df_all)
+    #df_all = __get_data()
+
+    #print(df_all)
 
     ### Write forecasted data to InfluxDB
     #__insert_forecast_on_all(df_all)
     #__insert_forecast_on_weight(df_all.drop(['temperature', 'humidity'], axis=1))
 
     ### Delete forecasted data from InfluxDB
-    __delete_data()
+    #__delete_data()
 
     ### Get MSE of forecast
     #__mse_predict_on_all(df_all)
